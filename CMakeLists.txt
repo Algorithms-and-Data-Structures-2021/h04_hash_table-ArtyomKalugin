@@ -10,10 +10,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(${PROJECT_NAME} STATIC
-        include/hash_table.hpp src/hash_table.cpp)
+        include/hash_table.hpp src/hash_table.cpp src/ddd.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
+# setting up compiler options
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(${PROJECT_NAME} PUBLIC "$<$<CONFIG:DEBUG>:-Og>")
+endif ()
 
 # executables
 add_executable(main main.cpp)
