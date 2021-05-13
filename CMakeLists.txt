@@ -10,7 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(${PROJECT_NAME} STATIC
-        include/hash_table.hpp src/hash_table.cpp src/ddd.cpp)
+        include/hash_table.hpp src/hash_table.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
