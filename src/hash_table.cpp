@@ -17,32 +17,72 @@ namespace itis {
       throw std::logic_error("hash table load factor must be in range [0...1]");
     }
 
-    // Tip: allocate hash-table buckets
+    buckets_.resize(capacity);
   }
 
   std::optional<std::string> HashTable::Search(int key) const {
-    // Tip: compute hash code (index) and use linear search
+    int hashCode = hash(key);
+
+    for(auto elem : buckets_[hashCode]){
+        if(elem.first == key){
+            return elem.second;
+        }
+    }
+
     return std::nullopt;
   }
 
   void HashTable::Put(int key, const std::string &value) {
-    // Tip 1: compute hash code (index) to determine which bucket to use
-    // Tip 2: consider the case when the key exists (read the docs in the header file)
+    int hashCode = hash(key);
+
+    if(ContainsKey(key)){
+        for(auto i = buckets_[hashCode].begin(); i != buckets_[hashCode].end(); i++){
+            if(i->first == key){
+                i->second = value;
+            }
+        }
+    }
+
+    if(!ContainsKey(key)){
+       buckets_[hashCode].push_back({key, value});
+       num_keys_++;
+    }
 
     if (static_cast<double>(num_keys_) / buckets_.size() >= load_factor_) {
-      // Tip 3: recompute hash codes (indices) for key-value pairs (create a new hash-table)
-      // Tip 4: use utils::hash(key, size) to compute new indices for key-value pairs
+        std::vector<Bucket> newBuckets_(capacity() * kGrowthCoefficient);
+
+        for(auto elem : buckets_){
+            for(auto pair : elem){
+                newBuckets_[utils::hash(pair.first, newBuckets_.size())].push_back(pair);
+            }
+        }
+
+        buckets_.clear();
+        buckets_.shrink_to_fit();
+        buckets_ = newBuckets_;
     }
   }
 
   std::optional<std::string> HashTable::Remove(int key) {
-    // Tip 1: compute hash code (index) to determine which bucket to use
-    // TIp 2: find the key-value pair to remove and make a copy of value to return
+    int hashCode = hash(key);
+
+    if(ContainsKey(key)){
+        for(auto i = buckets_[hashCode].begin(); i != buckets_[hashCode].end(); i++){
+            if(i->first == key){
+                auto deletedItem = i->second;
+                buckets_[hashCode].erase(i);
+                num_keys_--;
+
+                return deletedItem;
+            }
+        }
+
+    }
+
     return std::nullopt;
   }
 
   bool HashTable::ContainsKey(int key) const {
-    // Note: uses Search(key) which is not initially implemented
     return Search(key).has_value();
   }
 
